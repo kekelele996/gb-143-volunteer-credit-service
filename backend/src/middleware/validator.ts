@@ -96,10 +96,22 @@ export const adjustCreditSchema = Joi.object({
   reason: Joi.string().min(5).required(),
 });
 
+/**
+ * 分页 + 过滤查询参数。
+ * 这里必须声明路由/服务层实际读取的每一个查询键：Joi 默认拒绝未知键，
+ * 漏声明会让带过滤条件的请求直接 400（而不是返回过滤结果）。
+ */
 export const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).max(100).default(20),
   search: Joi.string().optional(),
+  // GET /api/v1/complaints —— 与服务层 status 过滤、complaints.status CHECK 约束一致
+  status: Joi.string().valid('pending', 'resolved', 'rejected').optional(),
+  volunteer_id: Joi.string().uuid().optional(),
+  // GET /api/v1/admin/audit-logs —— admin_id 对应 VARCHAR(100)，
+  // action 对应 VARCHAR(50)（无 CHECK 约束，动作词表开放，故不做枚举）
+  admin_id: Joi.string().max(100).optional(),
+  action: Joi.string().max(50).optional(),
 });
 
 export const trendSchema = Joi.object({
